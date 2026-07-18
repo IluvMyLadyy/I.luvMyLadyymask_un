@@ -3,63 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teachable Machine Image Model</title>
-    <!-- นำเข้า Google Fonts & Tailwind CSS ปรับปรุงลิงก์ให้ถูกต้อง -->
+    <title>Insect Hashira | Teachable Machine Image Model</title>
+    <!-- นำเข้า Google Fonts & Tailwind CSS เพื่อความสวยงาม -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1029 50%, #11011e 100%);
+            overflow-x: hidden;
         }
-        /* ปรับแต่งเว็บแคมให้ขอบมนและมีเงา */
+
+        /* เอฟเฟกต์ผีเสื้อบินหลังบ้าน (CSS Background Butterflies) */
+        .butterfly-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+        .butterfly {
+            position: absolute;
+            background: rgba(216, 180, 254, 0.4);
+            border-radius: 50%;
+            filter: blur(5px);
+            animation: fly 15s infinite ease-in-out;
+        }
+        @keyframes fly {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-100px) scale(1) translateX(50px); opacity: 0; }
+        }
+
+        /* ปรับแต่งเว็บแคมให้ขอบมนและมีเงาสีม่วงเรืองแสง */
         #webcam-container canvas {
-            border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+            border-radius: 1.5rem;
+            box-shadow: 0 0 30px -5px rgba(168, 85, 247, 0.6); /* Purple Glow */
             width: 100% !important;
             height: auto !important;
             max-width: 320px;
             transform: scaleX(-1); /* ส่องกระจกแบบธรรมชาติ */
+            border: 2px solid #9333ea;
+        }
+
+        /* แถบโหลดสไตล์ Shinobu (Green-to-Purple) */
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #34d399 0%, #a855f7 100%);
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center text-white p-6">
+<body class="min-h-screen flex flex-col items-center justify-center text-white p-6 relative">
 
-    <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 border border-slate-700 shadow-2xl text-center">
+    <!-- Elements สำหรับพื้นหลังผีเสื้อ -->
+    <div class="butterfly-bg" id="butterfly-container"></div>
+
+    <div class="w-full max-w-lg bg-black/70 backdrop-blur-xl rounded-3xl p-8 border border-purple-900 shadow-2xl text-center z-10">
         <!-- Header -->
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
-            Teachable Machine
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-400 via-fuchsia-300 to-emerald-300 bg-clip-text text-transparent mb-1">
+            Insect Hashira Vision
         </h1>
-        <p class="text-sm text-slate-200 mb-6">ระบบวิเคราะห์รูปภาพผ่านเว็บแคมอัตโนมัติ ทุกๆ 3 วินาที</p>
+        <p class="text-sm text-purple-200 mb-8 font-light">ระบบตรวจจับและวิเคราะห์ภาพถ่ายอัตโนมัติ ทุกๆ 3 วินาที</p>
 
-        <!-- Web Cam Display Box -->
-        <div class="relative flex justify-center items-center bg-slate-950 rounded-2xl border-2 border-dashed border-slate-700 p-4 min-h-[240px] mb-6">
+        <!-- Web Cam Display Box with Neon Border -->
+        <div class="relative flex justify-center items-center bg-gray-950 rounded-3xl border-4 border-dashed border-purple-800 p-5 min-h-[260px] mb-8 shadow-inner shadow-purple-950">
             <div id="webcam-container" class="w-full flex justify-center"></div>
             <!-- สถานะเริ่มต้นถ้ายังไม่ได้กด Start -->
-            <div id="placeholder-text" class="absolute text-sm text-slate-300 bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-700">
-                กรุณากดปุ่ม Start เพื่อเปิดกล้อง
+            <div id="placeholder-text" class="absolute text-base text-gray-400 flex flex-col items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>กรุณากดปุ่ม Start เพื่ออัญเชิญผีเสื้อ</span>
             </div>
         </div>
 
         <!-- Control Button & Countdown Preview -->
-        <div class="mb-6">
-            <button type="button" id="start-btn" onclick="init()" class="w-full py-3.5 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 active:scale-[0.98] transition-all text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/20 text-md cursor-pointer">
-                Start Camera
+        <div class="mb-8 relative">
+            <button type="button" id="start-btn" onclick="init()" class="w-full py-4 px-8 bg-gradient-to-r from-purple-700 to-fuchsia-600 hover:from-purple-800 hover:to-fuchsia-700 active:scale-[0.98] transition-all text-white font-semibold rounded-2xl shadow-lg shadow-purple-900/50 text-lg flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ปลุกพลังลมปราณ (Start)
             </button>
-            <!-- ส่วนแสดงเวลานับถอยหลัง 3 วินาที เพิ่มความสวยงาม -->
-            <div id="timer-status" class="text-sm text-cyan-300 mt-3 hidden font-medium">
-                กำลังวิเคราะห์ผลในอีก <span id="countdown-num" class="text-amber-400 font-bold text-base animate-ping inline-block w-4">3</span> วินาที...
+            
+            <!-- ส่วนแสดงสถานะนับถอยหลังทุก 3 วินาที -->
+            <div id="timer-status" class="text-xs text-fuchsia-300 mt-3 hidden flex items-center justify-center gap-1.5 animate-pulse">
+                <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+                ระบบกำลังทำการทำนายรอบถัดไป... (ทุก 3 วินาที)
             </div>
         </div>
 
-        <!-- Result Dashboard -->
-        <div class="text-left bg-slate-950/70 rounded-xl p-5 border border-slate-700">
-            <h2 class="text-xs font-bold text-slate-300 mb-4 uppercase tracking-wider">ผลการวิเคราะห์ (Predictions)</h2>
+        <!-- Result Dashboard with Shinobu Pattern -->
+        <div class="text-left bg-gray-950/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-800/60 shadow-xl relative overflow-hidden">
+            <!-- ตกแต่งขอบพื้นหลังเล็กน้อย -->
+            <div class="absolute -bottom-8 -right-8 w-24 h-24 bg-purple-900/30 rounded-full blur-2xl"></div>
+            
+            <h2 class="text-xs font-semibold text-purple-300 mb-5 uppercase tracking-widest flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                ผลการพิพากษา (Predictions)
+            </h2>
             <div id="label-container" class="space-y-4">
                 <!-- ผลลัพธ์จะถูกสร้างแบบ Dynamic ที่นี่ -->
-                <p class="text-sm text-slate-400 text-center py-2">กด Start เพื่อดูผลลัพธ์</p>
+                <p class="text-sm text-gray-500 text-center py-3">รอการอัญเชิญกล้อง...</p>
             </div>
         </div>
+        
+        <p class="text-xs text-gray-700 mt-6 font-mono">Shinobu Kocho Pattern | CSS Design</p>
     </div>
 
     <!-- Scripts -->
@@ -67,18 +119,35 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     
     <script type="text/javascript">
+        // แก้ไข: ใส่ URL ของโมเดล Teachable Machine ของคุณที่นี่
         const URL = "https://teachablemachine.withgoogle.com/models/r3IsqkBer/";
         let model, webcam, labelContainer, maxPredictions;
-        let predictInterval, countdownInterval;
-        let secondsLeft = 3;
+        let predictInterval; // ตัวแปรเก็บ setInterval สำหรับ 3 วินาที
+
+        // ฟังก์ชันสร้างผีเสื้อพื้นหลัง
+        function createButterflies() {
+            const container = document.getElementById('butterfly-container');
+            for (let i = 0; i < 15; i++) {
+                const butterfly = document.createElement('div');
+                butterfly.className = 'butterfly';
+                const size = Math.random() * 15 + 5; // Size between 5 and 20px
+                butterfly.style.width = `${size}px`;
+                butterfly.style.height = `${size}px`;
+                butterfly.style.left = `${Math.random() * 100}vw`;
+                butterfly.style.animationDelay = `${Math.random() * 15}s`;
+                butterfly.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                container.appendChild(butterfly);
+            }
+        }
+        createButterflies(); // เรียกใช้งานทันทีเมื่อโหลดหน้า
 
         async function init() {
             // ซ่อนข้อความ Placeholder และเปลี่ยนสถานะปุ่ม
             document.getElementById("placeholder-text").style.display = "none";
             const startBtn = document.getElementById("start-btn");
             startBtn.disabled = true;
-            startBtn.innerText = "Camera Active";
-            startBtn.className = "w-full py-3.5 px-6 bg-slate-800 text-slate-400 font-semibold rounded-xl cursor-not-allowed text-md";
+            startBtn.innerText = "เปิดใช้งานกล้องแล้ว";
+            startBtn.className = "w-full py-4 px-8 bg-gray-700 text-gray-400 font-semibold rounded-2xl cursor-not-allowed shadow-none text-lg flex items-center justify-center gap-2";
 
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
@@ -89,30 +158,30 @@
 
             // ตั้งค่า WebCam
             const flip = true; 
-            webcam = new tmImage.Webcam(320, 240, flip); 
+            webcam = new tmImage.Webcam(320, 240, flip); // ปรับขนาดให้แสดงผลสวยงามขึ้น
             await webcam.setup(); 
             await webcam.play();
             
             // แสดงผลกล้องบนหน้าจอ
             document.getElementById("webcam-container").appendChild(webcam.canvas);
             
-            // สั่งลูปเพื่ออัปเดตภาพเคลื่อนไหวบนหน้าจอตามปกติ
+            // สั่งลูปเพื่ออัปเดตภาพเคลื่อนไหวบนหน้าจอตามปกติ (เพื่อให้กล้องลื่นไหล)
             window.requestAnimationFrame(loop);
 
-            // เตรียมพื้นที่แสดงผลของ UI Label
+            // เตรียมพื้นที่แสดงผลของ UI Label ให้สวยงาม (ธีมขาว-ม่วง)
             labelContainer = document.getElementById("label-container");
-            labelContainer.innerHTML = ""; 
+            labelContainer.innerHTML = ""; // ล้างข้อความเริ่มต้น
             
             for (let i = 0; i < maxPredictions; i++) {
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "flex flex-col gap-1.5";
                 itemDiv.innerHTML = `
-                    <div class="flex justify-between text-sm">
-                        <span class="font-semibold text-white" id="class-name-${i}">กำลังโหลด...</span>
-                        <span class="font-bold text-cyan-300" id="class-prob-${i}">0%</span>
+                    <div class="flex justify-between text-base">
+                        <span class="font-medium text-white" id="class-name-${i}">โหลดข้อมูล...</span>
+                        <span class="font-bold text-emerald-300" id="class-prob-${i}">0%</span>
                     </div>
-                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700">
-                        <div class="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 h-full rounded-full transition-all duration-300" id="class-bar-${i}" style="width: 0%"></div>
+                    <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden border border-gray-700 shadow-inner">
+                        <div class="progress-bar-fill h-full rounded-full transition-all duration-500 ease-out" id="class-bar-${i}" style="width: 0%"></div>
                     </div>
                 `;
                 labelContainer.appendChild(itemDiv);
@@ -121,38 +190,26 @@
             // แสดงสถานะตัวจับเวลา
             document.getElementById("timer-status").classList.remove("hidden");
 
-            // ทำการทำนายผลครั้งแรกทันที
+            // การทำงานหลัก: ทำนายผลครั้งแรกทันที
             await predict();
 
-            // เริ่มระบบนับถอยหลังโชว์บนหน้าจอ (Visual Timer)
-            startCountdownVisual();
-
-            // ตั้งค่าลูปการทำนายผลใหม่ ทุกๆ 3 วินาที
+            // การทำงานหลัก: ตั้งค่าลูปการทำนายผลใหม่ ทุกๆ 3000 มิลลิวินาที (3 วินาที)
             predictInterval = setInterval(async () => {
+                // เรียกใช้ฟังก์ชันทำนายผล
                 await predict();
-                secondsLeft = 3; // รีเซ็ตตัวเลขเมื่อทำงานครบรอบ
+                // คุณสามารถใส่แอนิเมชันแฟลชสั้นๆ ที่กล้องเพื่อให้รู้ว่าทำงานแล้วตรงนี้ได้
+                // document.getElementById("webcam-container").classList.add("animate-pulse");
+                // setTimeout(() => document.getElementById("webcam-container").classList.remove("animate-pulse"), 500);
             }, 3000);
         }
 
-        // ฟังก์ชันช่วยแสดงเลขนับถอยหลัง 3..2..1 บนหน้าจอให้ผู้ใช้เห็นความเคลื่อนไหว
-        function startCountdownVisual() {
-            const countdownEl = document.getElementById("countdown-num");
-            countdownInterval = setInterval(() => {
-                secondsLeft--;
-                if (secondsLeft < 1) {
-                    countdownEl.innerText = "3";
-                } else {
-                    countdownEl.innerText = secondsLeft;
-                }
-            }, 1000);
-        }
-
+        // ลูปนี้ใช้สำหรับอัปเดตเฟรมภาพของกล้องเพื่อให้กล้องลื่นไหล (ไม่กระตุก)
         async function loop() {
             webcam.update(); 
             window.requestAnimationFrame(loop);
         }
 
-        // ฟังก์ชันทำนายผลที่จะถูกเรียกใช้ทุกๆ 3 วินาที
+        // ฟังก์ชันทำนายผลที่จะถูกเรียกใช้อัตโนมัติทุกๆ 3 วินาทีโดย setInterval
         async function predict() {
             if (!model || !webcam) return;
             
@@ -162,7 +219,7 @@
                 const probability = prediction[i].probability;
                 const percentage = (probability * 100).toFixed(0) + "%";
 
-                // อัปเดตข้อมูลลง UI
+                // อัปเดตข้อมูลลง UI ที่สร้างไว้ (ตัวอักษรขาว, แถบม่วง)
                 document.getElementById(`class-name-${i}`).innerText = className;
                 document.getElementById(`class-prob-${i}`).innerText = percentage;
                 document.getElementById(`class-bar-${i}`).style.width = percentage;

@@ -3,228 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insect Hashira | Teachable Machine Image Model</title>
-    <!-- นำเข้า Google Fonts & Tailwind CSS เพื่อความสวยงาม -->
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>หน้าจอธีม Xiao Genshin Impact</title>
     <style>
+        /* กำหนดรูปแบบหลักของหน้าจอ */
         body {
-            font-family: 'Sarabun', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1029 50%, #11011e 100%);
-            overflow-x: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: #0c1c1a; /* สีดำโทนเขียวเข้มแบบ Xiao */
+            color: #ffffff; /* ตัวอักษรสีขาว */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background-image: linear-gradient(135deg, #0c1c1a 0%, #1e4d46 100%); /* เพิ่มการไล่ระดับสี */
         }
 
-        /* เอฟเฟกต์ผีเสื้อบินหลังบ้าน (CSS Background Butterflies) */
-        .butterfly-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.3;
-        }
-        .butterfly {
-            position: absolute;
-            background: rgba(216, 180, 254, 0.4);
-            border-radius: 50%;
-            filter: blur(5px);
-            animation: fly 15s infinite ease-in-out;
-        }
-        @keyframes fly {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            20% { opacity: 0.8; }
-            80% { opacity: 0.8; }
-            100% { transform: translateY(-100px) scale(1) translateX(50px); opacity: 0; }
+        /* กล่องเนื้อหาหลัก */
+        .container {
+            background-color: rgba(26, 61, 57, 0.8); /* สีเขียวเข้มแบบโปร่งแสง */
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 127, 0.5); /* เงาสีเขียวมรกต */
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            border: 2px solid #00ff7f; /* เส้นขอบสีเขียวมรกต */
         }
 
-        /* ปรับแต่งเว็บแคมให้ขอบมนและมีเงาสีม่วงเรืองแสง */
-        #webcam-container canvas {
-            border-radius: 1.5rem;
-            box-shadow: 0 0 30px -5px rgba(168, 85, 247, 0.6); /* Purple Glow */
-            width: 100% !important;
-            height: auto !important;
-            max-width: 320px;
-            transform: scaleX(-1); /* ส่องกระจกแบบธรรมชาติ */
-            border: 2px solid #9333ea;
+        /* หัวข้อหลัก */
+        h1 {
+            color: #ffffff; /* ตัวอักษรสีขาว */
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff7f; /* เพิ่มเรืองแสงสีเขียว */
         }
 
-        /* แถบโหลดสไตล์ Shinobu (Green-to-Purple) */
-        .progress-bar-fill {
-            background: linear-gradient(90deg, #34d399 0%, #a855f7 100%);
+        /* สไตล์ข้อความแสดงเวลา */
+        .timer-text {
+            font-size: 24px;
+            color: #ffffff; /* ตัวอักษรสีขาว */
+            margin-bottom: 10px;
         }
+
+        /* กล่องแสดงผลการทำงาน */
+        #activity-log {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #00ff7f; /* ตัวอักษรสีเขียวมรกต */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            border: 1px solid #00ff7f;
+        }
+
+        /* สไตล์ปุ่ม */
+        .button {
+            background-color: #00ff7f; /* สีเขียวมรกต */
+            color: #0c1c1a; /* ตัวอักษรสีเข้ม */
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #00cc66; /* สีเขียวเข้มขึ้นเมื่อเอาเมาส์ไปชี้ */
+        }
+
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center text-white p-6 relative">
-
-    <!-- Elements สำหรับพื้นหลังผีเสื้อ -->
-    <div class="butterfly-bg" id="butterfly-container"></div>
-
-    <div class="w-full max-w-lg bg-black/70 backdrop-blur-xl rounded-3xl p-8 border border-purple-900 shadow-2xl text-center z-10">
-        <!-- Header -->
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-400 via-fuchsia-300 to-emerald-300 bg-clip-text text-transparent mb-1">
-            Insect Hashira Vision
-        </h1>
-        <p class="text-sm text-purple-200 mb-8 font-light">ระบบตรวจจับและวิเคราะห์ภาพถ่ายอัตโนมัติ ทุกๆ 3 วินาที</p>
-
-        <!-- Web Cam Display Box with Neon Border -->
-        <div class="relative flex justify-center items-center bg-gray-950 rounded-3xl border-4 border-dashed border-purple-800 p-5 min-h-[260px] mb-8 shadow-inner shadow-purple-950">
-            <div id="webcam-container" class="w-full flex justify-center"></div>
-            <!-- สถานะเริ่มต้นถ้ายังไม่ได้กด Start -->
-            <div id="placeholder-text" class="absolute text-base text-gray-400 flex flex-col items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                <span>กรุณากดปุ่ม Start เพื่ออัญเชิญผีเสื้อ</span>
-            </div>
-        </div>
-
-        <!-- Control Button & Countdown Preview -->
-        <div class="mb-8 relative">
-            <button type="button" id="start-btn" onclick="init()" class="w-full py-4 px-8 bg-gradient-to-r from-purple-700 to-fuchsia-600 hover:from-purple-800 hover:to-fuchsia-700 active:scale-[0.98] transition-all text-white font-semibold rounded-2xl shadow-lg shadow-purple-900/50 text-lg flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                ปลุกพลังลมปราณ (Start)
-            </button>
-            
-            <!-- ส่วนแสดงสถานะนับถอยหลังทุก 3 วินาที -->
-            <div id="timer-status" class="text-xs text-fuchsia-300 mt-3 hidden flex items-center justify-center gap-1.5 animate-pulse">
-                <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-                ระบบกำลังทำการทำนายรอบถัดไป... (ทุก 3 วินาที)
-            </div>
-        </div>
-
-        <!-- Result Dashboard with Shinobu Pattern -->
-        <div class="text-left bg-gray-950/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-800/60 shadow-xl relative overflow-hidden">
-            <!-- ตกแต่งขอบพื้นหลังเล็กน้อย -->
-            <div class="absolute -bottom-8 -right-8 w-24 h-24 bg-purple-900/30 rounded-full blur-2xl"></div>
-            
-            <h2 class="text-xs font-semibold text-purple-300 mb-5 uppercase tracking-widest flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-                ผลการพิพากษา (Predictions)
-            </h2>
-            <div id="label-container" class="space-y-4">
-                <!-- ผลลัพธ์จะถูกสร้างแบบ Dynamic ที่นี่ -->
-                <p class="text-sm text-gray-500 text-center py-3">รอการอัญเชิญกล้อง...</p>
-            </div>
-        </div>
-        
-        <p class="text-xs text-gray-700 mt-6 font-mono">Shinobu Kocho Pattern | CSS Design</p>
+<body>
+    <div class="container">
+        <h1>Xiao's Vigil</h1>
+        <p class="timer-text">สถานะ: <span id="status">กำลังรอ...</span></p>
+        <p>เวลาผ่านไป: <span id="timer">0</span> วินาที</p>
+        <div id="activity-log"></div>
+        <button id="startStopBtn" class="button">เริ่มการทำงาน</button>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    
-    <script type="text/javascript">
-        // แก้ไข: ใส่ URL ของโมเดล Teachable Machine ของคุณที่นี่
-        const URL = "https://teachablemachine.withgoogle.com/models/r3IsqkBer/";
-        let model, webcam, labelContainer, maxPredictions;
-        let predictInterval; // ตัวแปรเก็บ setInterval สำหรับ 3 วินาที
+    <script>
+        let timerInterval;
+        let elapsedSeconds = 0;
+        let isRunning = false;
+        const statusEl = document.getElementById('status');
+        const timerEl = document.getElementById('timer');
+        const logEl = document.getElementById('activity-log');
+        const startStopBtn = document.getElementById('startStopBtn');
 
-        // ฟังก์ชันสร้างผีเสื้อพื้นหลัง
-        function createButterflies() {
-            const container = document.getElementById('butterfly-container');
-            for (let i = 0; i < 15; i++) {
-                const butterfly = document.createElement('div');
-                butterfly.className = 'butterfly';
-                const size = Math.random() * 15 + 5; // Size between 5 and 20px
-                butterfly.style.width = `${size}px`;
-                butterfly.style.height = `${size}px`;
-                butterfly.style.left = `${Math.random() * 100}vw`;
-                butterfly.style.animationDelay = `${Math.random() * 15}s`;
-                butterfly.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                container.appendChild(butterfly);
+        function updateLog(message) {
+            logEl.innerHTML += `<p>> ${message}</p>`;
+            logEl.scrollTop = logEl.scrollHeight; // เลื่อนสกอลล์บาร์ลงล่างสุด
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                // หยุดการทำงาน
+                clearInterval(timerInterval);
+                statusEl.innerText = 'หยุด';
+                statusEl.style.color = '#ff6347'; // สีส้มแดง
+                startStopBtn.innerText = 'เริ่มการทำงาน';
+                updateLog('การทำงานหยุดลงแล้ว...');
+            } else {
+                // เริ่มการทำงาน
+                statusEl.innerText = 'กำลังทำงาน...';
+                statusEl.style.color = '#00ff7f'; // สีเขียวมรกต
+                startStopBtn.innerText = 'หยุดการทำงาน';
+                elapsedSeconds = 0;
+                timerEl.innerText = elapsedSeconds;
+                logEl.innerHTML = ''; // เคลียร์ล็อก
+                updateLog('เริ่มการทำงาน... จะมีกิจกรรมทุกๆ 3 วินาที');
+
+                timerInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    timerEl.innerText = elapsedSeconds;
+
+                    if (elapsedSeconds % 3 === 0) {
+                        // กิจกรรมที่จะทำทุกๆ 3 วินาที
+                        const timestamp = new Date().toLocaleTimeString();
+                        updateLog(`[${timestamp}] Xiao ปราบปีศาจ...`);
+                    }
+                }, 1000); // อัปเดตเวลาทุกวินาที
             }
-        }
-        createButterflies(); // เรียกใช้งานทันทีเมื่อโหลดหน้า
-
-        async function init() {
-            // ซ่อนข้อความ Placeholder และเปลี่ยนสถานะปุ่ม
-            document.getElementById("placeholder-text").style.display = "none";
-            const startBtn = document.getElementById("start-btn");
-            startBtn.disabled = true;
-            startBtn.innerText = "เปิดใช้งานกล้องแล้ว";
-            startBtn.className = "w-full py-4 px-8 bg-gray-700 text-gray-400 font-semibold rounded-2xl cursor-not-allowed shadow-none text-lg flex items-center justify-center gap-2";
-
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
-
-            // โหลด Model
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
-
-            // ตั้งค่า WebCam
-            const flip = true; 
-            webcam = new tmImage.Webcam(320, 240, flip); // ปรับขนาดให้แสดงผลสวยงามขึ้น
-            await webcam.setup(); 
-            await webcam.play();
-            
-            // แสดงผลกล้องบนหน้าจอ
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
-            
-            // สั่งลูปเพื่ออัปเดตภาพเคลื่อนไหวบนหน้าจอตามปกติ (เพื่อให้กล้องลื่นไหล)
-            window.requestAnimationFrame(loop);
-
-            // เตรียมพื้นที่แสดงผลของ UI Label ให้สวยงาม (ธีมขาว-ม่วง)
-            labelContainer = document.getElementById("label-container");
-            labelContainer.innerHTML = ""; // ล้างข้อความเริ่มต้น
-            
-            for (let i = 0; i < maxPredictions; i++) {
-                const itemDiv = document.createElement("div");
-                itemDiv.className = "flex flex-col gap-1.5";
-                itemDiv.innerHTML = `
-                    <div class="flex justify-between text-base">
-                        <span class="font-medium text-white" id="class-name-${i}">โหลดข้อมูล...</span>
-                        <span class="font-bold text-emerald-300" id="class-prob-${i}">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden border border-gray-700 shadow-inner">
-                        <div class="progress-bar-fill h-full rounded-full transition-all duration-500 ease-out" id="class-bar-${i}" style="width: 0%"></div>
-                    </div>
-                `;
-                labelContainer.appendChild(itemDiv);
-            }
-
-            // แสดงสถานะตัวจับเวลา
-            document.getElementById("timer-status").classList.remove("hidden");
-
-            // การทำงานหลัก: ทำนายผลครั้งแรกทันที
-            await predict();
-
-            // การทำงานหลัก: ตั้งค่าลูปการทำนายผลใหม่ ทุกๆ 3000 มิลลิวินาที (3 วินาที)
-            predictInterval = setInterval(async () => {
-                // เรียกใช้ฟังก์ชันทำนายผล
-                await predict();
-                // คุณสามารถใส่แอนิเมชันแฟลชสั้นๆ ที่กล้องเพื่อให้รู้ว่าทำงานแล้วตรงนี้ได้
-                // document.getElementById("webcam-container").classList.add("animate-pulse");
-                // setTimeout(() => document.getElementById("webcam-container").classList.remove("animate-pulse"), 500);
-            }, 3000);
+            isRunning = !isRunning;
         }
 
-        // ลูปนี้ใช้สำหรับอัปเดตเฟรมภาพของกล้องเพื่อให้กล้องลื่นไหล (ไม่กระตุก)
-        async function loop() {
-            webcam.update(); 
-            window.requestAnimationFrame(loop);
-        }
-
-        // ฟังก์ชันทำนายผลที่จะถูกเรียกใช้อัตโนมัติทุกๆ 3 วินาทีโดย setInterval
-        async function predict() {
-            if (!model || !webcam) return;
-            
-            const prediction = await model.predict(webcam.canvas);
-            for (let i = 0; i < maxPredictions; i++) {
-                const className = prediction[i].className;
-                const probability = prediction[i].probability;
-                const percentage = (probability * 100).toFixed(0) + "%";
-
-                // อัปเดตข้อมูลลง UI ที่สร้างไว้ (ตัวอักษรขาว, แถบม่วง)
-                document.getElementById(`class-name-${i}`).innerText = className;
-                document.getElementById(`class-prob-${i}`).innerText = percentage;
-                document.getElementById(`class-bar-${i}`).style.width = percentage;
-            }
-        }
+        startStopBtn.addEventListener('click', toggleTimer);
     </script>
 </body>
 </html>

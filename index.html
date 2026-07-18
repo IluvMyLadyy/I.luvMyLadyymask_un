@@ -3,138 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>หน้าจอธีม Xiao Genshin Impact</title>
+    <title>Teachable Machine - Cat Pastel Theme</title>
+    <!-- นำเข้าฟอนต์น่ารักๆ -->
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        /* กำหนดรูปแบบหลักของหน้าจอ */
+        * {
+            box-sizing: border-box;
+            font-family: 'Mitr', sans-serif;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #0c1c1a; /* สีดำโทนเขียวเข้มแบบ Xiao */
-            color: #ffffff; /* ตัวอักษรสีขาว */
+            background: linear-gradient(135deg, #ffe0b2 0%, #fff9c4 100%);
             margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            background-image: linear-gradient(135deg, #0c1c1a 0%, #1e4d46 100%); /* เพิ่มการไล่ระดับสี */
+            min-height: 100vh;
+            color: #ffffff;
         }
 
-        /* กล่องเนื้อหาหลัก */
         .container {
-            background-color: rgba(26, 61, 57, 0.8); /* สีเขียวเข้มแบบโปร่งแสง */
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 255, 127, 0.5); /* เงาสีเขียวมรกต */
+            background-color: rgba(255, 167, 38, 0.75); /* สีส้มพาสเทลโปร่งแสงเล็กน้อย */
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 8px 32px rgba(255, 112, 67, 0.2);
             text-align: center;
-            width: 80%;
-            max-width: 600px;
-            border: 2px solid #00ff7f; /* เส้นขอบสีเขียวมรกต */
+            border: 4px solid #fff59d; /* ขอบสีเหลืองพาสเทล */
+            position: relative;
+            overflow: hidden;
         }
 
-        /* หัวข้อหลัก */
+        /* ตกแต่งด้วยหูแมวสุดน่ารักด้านบนกล่อง */
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 167, 38, 0.9);
+            border: 4px solid #fff59d;
+            border-radius: 8px;
+        }
+        .container::before {
+            left: 40px;
+            transform: rotate(-15deg);
+        }
+        .container::after {
+            right: 40px;
+            transform: rotate(15deg);
+        }
+
         h1 {
-            color: #ffffff; /* ตัวอักษรสีขาว */
-            font-size: 36px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px #00ff7f; /* เพิ่มเรืองแสงสีเขียว */
-        }
-
-        /* สไตล์ข้อความแสดงเวลา */
-        .timer-text {
             font-size: 24px;
-            color: #ffffff; /* ตัวอักษรสีขาว */
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(230, 81, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        /* กล่องแสดงผลการทำงาน */
-        #activity-log {
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #00ff7f; /* ตัวอักษรสีเขียวมรกต */
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            height: 150px;
-            overflow-y: auto;
-            text-align: left;
-            border: 1px solid #00ff7f;
-        }
-
-        /* สไตล์ปุ่ม */
-        .button {
-            background-color: #00ff7f; /* สีเขียวมรกต */
-            color: #0c1c1a; /* ตัวอักษรสีเข้ม */
-            border: none;
-            padding: 10px 20px;
+        .btn-start {
+            background-color: #ffb74d;
+            color: #ffffff;
+            border: 3px solid #ffffff;
+            border-radius: 50px;
+            padding: 12px 35px;
             font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3);
+            margin-bottom: 25px;
         }
 
-        .button:hover {
-            background-color: #00cc66; /* สีเขียวเข้มขึ้นเมื่อเอาเมาส์ไปชี้ */
+        .btn-start:hover {
+            background-color: #ffa726;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 143, 0, 0.4);
         }
 
+        .btn-start:active {
+            transform: translateY(1px);
+        }
+
+        #webcam-container {
+            background-color: #fff9c4; /* พื้นหลังรอกล้องสีเหลืองพาสเทล */
+            border: 4px dashed #ffffff;
+            border-radius: 50%; /* ทำเป็นวงกลมสไตล์อุ้งเท้าแมว */
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 25px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #webcam-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* ข้อความแจ้งเตือนสถานะการนับเวลา */
+        .timer-badge {
+            background-color: #ffb74d;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 15px;
+            border: 1px solid #ffffff;
+        }
+
+        #label-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 16px;
+        }
+
+        .prediction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+        }
+
+        .class-name {
+            font-weight: 500;
+        }
+
+        .probability-bar-container {
+            width: 120px;
+            background-color: rgba(255, 255, 255, 0.3);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .probability-bar {
+            height: 100%;
+            background-color: #fff59d;
+            border-radius: 6px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .probability-text {
+            font-size: 14px;
+            margin-left: 8px;
+            min-width: 45px;
+            text-align: right;
+        }
+        
+        .row-right {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Xiao's Vigil</h1>
-        <p class="timer-text">สถานะ: <span id="status">กำลังรอ...</span></p>
-        <p>เวลาผ่านไป: <span id="timer">0</span> วินาที</p>
-        <div id="activity-log"></div>
-        <button id="startStopBtn" class="button">เริ่มการทำงาน</button>
+        <h1>🐱 TM Image Model 🐾</h1>
+        <button type="button" class="btn-start" onclick="init()">เริ่มใช้งานสิเหมียว</button>
+        
+        <div id="webcam-container">
+            <!-- สัญลักษณ์รูปอุ้งเท้าแมวระหว่างรอกล้อง -->
+            <span style="color: #ffb74d; font-size: 48px;">🐾</span>
+        </div>
+        
+        <div class="timer-badge" id="timer-status">โหมด: ตรวจจับทุกๆ 3 วินาที</div>
+        
+        <div id="label-container">
+            <!-- ผลลัพธ์จะแสดงตรงนี้ -->
+        </div>
     </div>
 
-    <script>
-        let timerInterval;
-        let elapsedSeconds = 0;
-        let isRunning = false;
-        const statusEl = document.getElementById('status');
-        const timerEl = document.getElementById('timer');
-        const logEl = document.getElementById('activity-log');
-        const startStopBtn = document.getElementById('startStopBtn');
+    <!-- ลิงก์ TensorFlow และ Teachable Machine -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <script type="text/javascript">
+        // ลิงก์โมเดลเดิมของคุณ
+        const URL = "https://teachablemachine.withgoogle.com/models/07LFF4wb1/";
 
-        function updateLog(message) {
-            logEl.innerHTML += `<p>> ${message}</p>`;
-            logEl.scrollTop = logEl.scrollHeight; // เลื่อนสกอลล์บาร์ลงล่างสุด
-        }
+        let model, webcam, labelContainer, maxPredictions;
+        let lastPredictTime = 0; // ตัวแปรเก็บเวลาที่ส่งตรวจจับล่าสุด
 
-        function toggleTimer() {
-            if (isRunning) {
-                // หยุดการทำงาน
-                clearInterval(timerInterval);
-                statusEl.innerText = 'หยุด';
-                statusEl.style.color = '#ff6347'; // สีส้มแดง
-                startStopBtn.innerText = 'เริ่มการทำงาน';
-                updateLog('การทำงานหยุดลงแล้ว...');
-            } else {
-                // เริ่มการทำงาน
-                statusEl.innerText = 'กำลังทำงาน...';
-                statusEl.style.color = '#00ff7f'; // สีเขียวมรกต
-                startStopBtn.innerText = 'หยุดการทำงาน';
-                elapsedSeconds = 0;
-                timerEl.innerText = elapsedSeconds;
-                logEl.innerHTML = ''; // เคลียร์ล็อก
-                updateLog('เริ่มการทำงาน... จะมีกิจกรรมทุกๆ 3 วินาที');
+        async function init() {
+            // ซ่อนปุ่มเริ่มเมื่อกดแล้ว เพื่อความสวยงามและกันผู้ใช้กดซ้ำ
+            document.querySelector('.btn-start').style.display = 'none';
+            
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
 
-                timerInterval = setInterval(() => {
-                    elapsedSeconds++;
-                    timerEl.innerText = elapsedSeconds;
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
 
-                    if (elapsedSeconds % 3 === 0) {
-                        // กิจกรรมที่จะทำทุกๆ 3 วินาที
-                        const timestamp = new Date().toLocaleTimeString();
-                        updateLog(`[${timestamp}] Xiao ปราบปีศาจ...`);
-                    }
-                }, 1000); // อัปเดตเวลาทุกวินาที
+            const flip = true; 
+            webcam = new tmImage.Webcam(200, 200, flip); 
+            await webcam.setup(); 
+            await webcam.play();
+            
+            // ล้างไอคอนอุ้งเท้าออกแล้วใส่ canvas กล้องเข้าไปแทน
+            document.getElementById("webcam-container").innerHTML = "";
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = ""; 
+            
+            // สร้าง UI ผลลัพธ์แบบ Progress Bar สวยงาม
+            for (let i = 0; i < maxPredictions; i++) {
+                const row = document.createElement("div");
+                row.className = "prediction-row";
+                
+                const nameSpan = document.createElement("span");
+                nameSpan.className = "class-name";
+                
+                const rightDiv = document.createElement("div");
+                rightDiv.className = "row-right";
+                
+                const barContainer = document.createElement("div");
+                barContainer.className = "probability-bar-container";
+                
+                const bar = document.createElement("div");
+                bar.className = "probability-bar";
+                
+                const textSpan = document.createElement("span");
+                textSpan.className = "probability-text";
+                
+                barContainer.appendChild(bar);
+                rightDiv.appendChild(barContainer);
+                rightDiv.appendChild(textSpan);
+                
+                row.appendChild(nameSpan);
+                row.appendChild(rightDiv);
+                
+                labelContainer.appendChild(row);
             }
-            isRunning = !isRunning;
+
+            // บันทึกเวลาเริ่มต้นและเริ่มลูปการทำงาน
+            lastPredictTime = Date.now();
+            window.requestAnimationFrame(loop);
         }
 
-        startStopBtn.addEventListener('click', toggleTimer);
+        async function loop() {
+            webcam.update(); // อัปเดตภาพจากกล้องตามปกติเพื่อให้ภาพเคลื่อนไหวลื่นไหล
+            
+            let currentTime = Date.now();
+            // ทำงานเช็คเงื่อนไขเวลา: ถ้าผ่านไปครบ 3,000 มิลลิวินาที (3 วินาที) จึงจะ Predict
+            if (currentTime - lastPredictTime >= 3000) {
+                await predict();
+                lastPredictTime = currentTime; // เซ็ตค่าเวลาล่าสุดใหม่
+                
+                // ลูกเล่นเพิ่มเติม: ให้แถบสถานะกะพริบเบาๆ ทุกครั้งที่มีการอัปเดตข้อมูลใหม่
+                const badge = document.getElementById("timer-status");
+                badge.style.backgroundColor = "#fff59d";
+                badge.style.color = "#ff9800";
+                setTimeout(() => {
+                    badge.style.backgroundColor = "#ffb74d";
+                    badge.style.color = "#ffffff";
+                }, 300);
+            }
+            
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const className = prediction[i].className;
+                const probability = prediction[i].probability;
+                const percentage = (probability * 100).toFixed(0) + "%";
+                
+                // อัปเดตข้อมูลลง UI แบบแยกสัดส่วน
+                const row = labelContainer.childNodes[i];
+                row.querySelector(".class-name").innerHTML = className;
+                row.querySelector(".probability-bar").style.width = percentage;
+                row.querySelector(".probability-text").innerHTML = percentage;
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,59 +1,155 @@
-<div>Teachable Machine Image Model</div>
-<button type="button" onclick="init()">Start</button>
-<div id="webcam-container"></div>
-<div id="label-container"></div>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-<script type="text/javascript">
-    // More API functions here:
-    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-
-    // the link to your model provided by Teachable Machine export panel
-    const URL = "https://teachablemachine.withgoogle.com/models/r3IsqkBer/";
-
-    let model, webcam, labelContainer, maxPredictions;
-
-    // Load the image model and setup the webcam
-    async function init() {
-        const modelURL = URL + "model.json";
-        const metadataURL = URL + "metadata.json";
-
-        // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // or files from your local hard drive
-        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
-
-        // Convenience function to setup a webcam
-        const flip = true; // whether to flip the webcam
-        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-        await webcam.setup(); // request access to the webcam
-        await webcam.play();
-        window.requestAnimationFrame(loop);
-
-        // append elements to the DOM
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement("div"));
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachable Machine Image Model</title>
+    <!-- นำเข้า Google Fonts & Tailwind CSS เพื่อความสวยงาม -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/tailwind" defer></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
         }
-    }
-
-    async function loop() {
-        webcam.update(); // update the webcam frame
-        await predict();
-        window.requestAnimationFrame(loop);
-    }
-
-    // run the webcam image through the image model
-    async function predict() {
-        // predict can take in an image, video or canvas html element
-        const prediction = await model.predict(webcam.canvas);
-        for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-            labelContainer.childNodes[i].innerHTML = classPrediction;
+        /* ปรับแต่งเว็บแคมให้ขอบมนและมีเงา */
+        #webcam-container canvas {
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+            width: 100% !important;
+            height: auto !important;
+            max-width: 320px;
+            transform: scaleX(-1); /* ส่องกระจกแบบธรรมชาติ */
         }
-    }
-</script>
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-slate-100 p-6">
+
+    <div class="w-full max-w-md bg-slate-900/80 backdrop-blur-md rounded-2xl p-6 border border-slate-800 shadow-2xl text-center">
+        <!-- Header -->
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+            Teachable Machine Image Model
+        </h1>
+        <p class="text-xs text-slate-400 mb-6">ระบบวิเคราะห์รูปภาพผ่านเว็บแคมอัตโนมัติ ทุกๆ 3 วินาที</p>
+
+        <!-- Web Cam Display Box -->
+        <div class="relative flex justify-center items-center bg-slate-950 rounded-2xl border-2 border-dashed border-slate-800 p-4 min-h-[240px] mb-6">
+            <div id="webcam-container" class="w-full flex justify-center"></div>
+            <!-- สถานะเริ่มต้นถ้ายังไม่ได้กด Start -->
+            <div id="placeholder-text" class="absolute text-sm text-slate-500">
+                กรุณากดปุ่ม Start เพื่อเปิดกล้อง
+            </div>
+        </div>
+
+        <!-- Control Button & Countdown Preview -->
+        <div class="mb-6">
+            <button type="button" id="start-btn" onclick="init()" class="w-full py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 active:scale-[0.98] transition-all text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/20">
+                Start Camera
+            </button>
+            <div id="timer-status" class="text-xs text-cyan-400 mt-2 hidden animate-pulse">
+                ระบบกำลังวิเคราะห์ผลรอบถัดไป...
+            </div>
+        </div>
+
+        <!-- Result Dashboard -->
+        <div class="text-left bg-slate-950/50 rounded-xl p-4 border border-slate-800/60">
+            <h2 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">ผลการวิเคราะห์ (Predictions)</h2>
+            <div id="label-container" class="space-y-3">
+                <!-- ผลลัพธ์จะถูกสร้างแบบ Dynamic ที่นี่ -->
+                <p class="text-xs text-slate-600 text-center py-2">กด Start เพื่อดูผลลัพธ์</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <script type="text/javascript">
+        const URL = "https://teachablemachine.withgoogle.com/models/r3IsqkBer/";
+        let model, webcam, labelContainer, maxPredictions;
+        let predictInterval;
+
+        async function init() {
+            // ซ่อนข้อความ Placeholder และเปลี่ยนสถานะปุ่ม
+            document.getElementById("placeholder-text").style.display = "none";
+            const startBtn = document.getElementById("start-btn");
+            startBtn.disabled = true;
+            startBtn.innerText = "Camera Active";
+            startBtn.className = "w-full py-3 px-6 bg-slate-800 text-slate-500 font-semibold rounded-xl cursor-not-allowed";
+
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            // โหลด Model
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            // ตั้งค่า WebCam
+            const flip = true; 
+            webcam = new tmImage.Webcam(320, 240, flip); // ปรับขนาดให้แสดงผลสวยงามขึ้น
+            await webcam.setup(); 
+            await webcam.play();
+            
+            // แสดงผลกล้องบนหน้าจอ
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            
+            // สั่งลูปเพื่ออัปเดตภาพเคลื่อนไหวบนหน้าจอตามปกติ (แต่ยังไม่ทำนายผล)
+            window.requestAnimationFrame(loop);
+
+            // เตรียมพื้นที่แสดงผลของ UI Label ให้สวยงาม
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = ""; // ล้างข้อความเริ่มต้น
+            
+            for (let i = 0; i < maxPredictions; i++) {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "flex flex-col gap-1";
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-slate-300" id="class-name-${i}">Loading...</span>
+                        <span class="font-bold text-cyan-400" id="class-prob-${i}">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full transition-all duration-500" id="class-bar-${i}" style="width: 0%"></div>
+                    </div>
+                `;
+                labelContainer.appendChild(itemDiv);
+            }
+
+            // แสดงสถานะตัวจับเวลา
+            document.getElementById("timer-status").classList.remove("hidden");
+
+            // ทำการทำนายผลครั้งแรกทันที
+            await predict();
+
+            // ตั้งค่าลูปการทำนายผลใหม่ ทุกๆ 3000 มิลลิวินาที (3 วินาที)
+            predictInterval = setInterval(async () => {
+                await predict();
+            }, 3000);
+        }
+
+        // ลูปนี้ใช้สำหรับอัปเดตเฟรมภาพของกล้องเพื่อให้กล้องลื่นไหล (ไม่กระตุก)
+        async function loop() {
+            webcam.update(); 
+            window.requestAnimationFrame(loop);
+        }
+
+        // ฟังก์ชันทำนายผลที่จะถูกเรียกใช้ทุกๆ 3 วินาที
+        async function predict() {
+            if (!model || !webcam) return;
+            
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const className = prediction[i].className;
+                const probability = prediction[i].probability;
+                const percentage = (probability * 100).toFixed(0) + "%";
+
+                // อัปเดตข้อมูลลง UI ที่สร้างไว้
+                document.getElementById(`class-name-${i}`).innerText = className;
+                document.getElementById(`class-prob-${i}`).innerText = percentage;
+                document.getElementById(`class-bar-${i}`).style.width = percentage;
+            }
+        }
+    </script>
+</body>
+</html>

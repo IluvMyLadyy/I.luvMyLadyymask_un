@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teachable Machine Image Model</title>
-    <!-- นำเข้า Google Fonts -->
+    <!-- นำเข้า Google Fonts & Tailwind CSS ปรับปรุงลิงก์ให้ถูกต้อง -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- แก้ไข CDN Tailwind CSS ให้ถูกต้องเพื่อเปิดใช้งาน Styles -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
@@ -16,7 +15,7 @@
         /* ปรับแต่งเว็บแคมให้ขอบมนและมีเงา */
         #webcam-container canvas {
             border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.6);
             width: 100% !important;
             height: auto !important;
             max-width: 320px;
@@ -24,48 +23,41 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center text-slate-100 p-6">
+<body class="min-h-screen flex flex-col items-center justify-center text-white p-6">
 
-    <div class="w-full max-w-md bg-slate-900/80 backdrop-blur-md rounded-2xl p-6 border border-slate-800 shadow-2xl text-center">
+    <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 border border-slate-700 shadow-2xl text-center">
         <!-- Header -->
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
-            Teachable Machine AI
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
+            Teachable Machine
         </h1>
-        <p class="text-xs text-slate-400 mb-6">ระบบวิเคราะห์รูปภาพผ่านเว็บแคมอัตโนมัติ ทุกๆ 3 วินาที</p>
+        <p class="text-sm text-slate-200 mb-6">ระบบวิเคราะห์รูปภาพผ่านเว็บแคมอัตโนมัติ ทุกๆ 3 วินาที</p>
 
         <!-- Web Cam Display Box -->
-        <div class="relative flex justify-center items-center bg-slate-950 rounded-2xl border-2 border-dashed border-slate-800 p-4 min-h-[240px] mb-6">
+        <div class="relative flex justify-center items-center bg-slate-950 rounded-2xl border-2 border-dashed border-slate-700 p-4 min-h-[240px] mb-6">
             <div id="webcam-container" class="w-full flex justify-center"></div>
             <!-- สถานะเริ่มต้นถ้ายังไม่ได้กด Start -->
-            <div id="placeholder-text" class="absolute text-sm text-slate-500">
+            <div id="placeholder-text" class="absolute text-sm text-slate-300 bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-700">
                 กรุณากดปุ่ม Start เพื่อเปิดกล้อง
             </div>
         </div>
 
         <!-- Control Button & Countdown Preview -->
         <div class="mb-6">
-            <button type="button" id="start-btn" onclick="init()" class="w-full py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 active:scale-[0.98] transition-all text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/20">
+            <button type="button" id="start-btn" onclick="init()" class="w-full py-3.5 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 active:scale-[0.98] transition-all text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/20 text-md cursor-pointer">
                 Start Camera
             </button>
-            
-            <!-- เพิ่ม UI ตัวเลขนับถอยหลังและ Progress Bar เพื่อความสวยงาม -->
-            <div id="timer-status" class="mt-4 hidden text-left bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                <div class="flex justify-between text-xs text-cyan-400 mb-1.5 font-medium">
-                    <span class="animate-pulse">● ระบบกำลังทำงานอัตโนมัติ</span>
-                    <span>วิเคราะห์ใหม่ใน <span id="countdown-text" class="font-bold text-amber-400">3.0</span> วินาที</span>
-                </div>
-                <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                    <div id="countdown-bar" class="bg-gradient-to-r from-cyan-400 to-amber-400 h-full w-full transition-all duration-100 ease-linear"></div>
-                </div>
+            <!-- ส่วนแสดงเวลานับถอยหลัง 3 วินาที เพิ่มความสวยงาม -->
+            <div id="timer-status" class="text-sm text-cyan-300 mt-3 hidden font-medium">
+                กำลังวิเคราะห์ผลในอีก <span id="countdown-num" class="text-amber-400 font-bold text-base animate-ping inline-block w-4">3</span> วินาที...
             </div>
         </div>
 
         <!-- Result Dashboard -->
-        <div class="text-left bg-slate-950/50 rounded-xl p-4 border border-slate-800/60">
-            <h2 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">ผลการวิเคราะห์ (Predictions)</h2>
-            <div id="label-container" class="space-y-3">
+        <div class="text-left bg-slate-950/70 rounded-xl p-5 border border-slate-700">
+            <h2 class="text-xs font-bold text-slate-300 mb-4 uppercase tracking-wider">ผลการวิเคราะห์ (Predictions)</h2>
+            <div id="label-container" class="space-y-4">
                 <!-- ผลลัพธ์จะถูกสร้างแบบ Dynamic ที่นี่ -->
-                <p class="text-xs text-slate-600 text-center py-2">กด Start เพื่อดูผลลัพธ์</p>
+                <p class="text-sm text-slate-400 text-center py-2">กด Start เพื่อดูผลลัพธ์</p>
             </div>
         </div>
     </div>
@@ -75,11 +67,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     
     <script type="text/javascript">
-        // ลิงก์ Model ของคุณที่ตั้งค่าไว้
         const URL = "https://teachablemachine.withgoogle.com/models/r3IsqkBer/";
         let model, webcam, labelContainer, maxPredictions;
-        let lastPredictTime = 0;
-        const PREDICT_INTERVAL = 3000; // 3000ms = 3 วินาที
+        let predictInterval, countdownInterval;
+        let secondsLeft = 3;
 
         async function init() {
             // ซ่อนข้อความ Placeholder และเปลี่ยนสถานะปุ่ม
@@ -87,91 +78,81 @@
             const startBtn = document.getElementById("start-btn");
             startBtn.disabled = true;
             startBtn.innerText = "Camera Active";
-            startBtn.className = "w-full py-3 px-6 bg-slate-800 text-slate-500 font-semibold rounded-xl cursor-not-allowed";
+            startBtn.className = "w-full py-3.5 px-6 bg-slate-800 text-slate-400 font-semibold rounded-xl cursor-not-allowed text-md";
 
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
 
-            // แสดงสถานะระหว่างโหลด Model
-            document.getElementById("label-container").innerHTML = `<p class="text-xs text-cyan-400 text-center py-2 animate-pulse">กำลังโหลด AI Model...</p>`;
+            // โหลด Model
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
 
-            try {
-                // โหลด Model
-                model = await tmImage.load(modelURL, metadataURL);
-                maxPredictions = model.getTotalClasses();
+            // ตั้งค่า WebCam
+            const flip = true; 
+            webcam = new tmImage.Webcam(320, 240, flip); 
+            await webcam.setup(); 
+            await webcam.play();
+            
+            // แสดงผลกล้องบนหน้าจอ
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            
+            // สั่งลูปเพื่ออัปเดตภาพเคลื่อนไหวบนหน้าจอตามปกติ
+            window.requestAnimationFrame(loop);
 
-                // ตั้งค่า WebCam
-                const flip = true; 
-                webcam = new tmImage.Webcam(320, 240, flip); 
-                await webcam.setup(); 
-                await webcam.play();
-                
-                // แสดงผลกล้องบนหน้าจอ
-                document.getElementById("webcam-container").appendChild(webcam.canvas);
-                
-                // เตรียมพื้นที่แสดงผลของ UI Label
-                labelContainer = document.getElementById("label-container");
-                labelContainer.innerHTML = ""; 
-                
-                for (let i = 0; i < maxPredictions; i++) {
-                    const itemDiv = document.createElement("div");
-                    itemDiv.className = "flex flex-col gap-1";
-                    itemDiv.innerHTML = `
-                        <div class="flex justify-between text-sm">
-                            <span class="font-medium text-slate-300" id="class-name-${i}">รอผลการวิเคราะห์...</span>
-                            <span class="font-bold text-cyan-400" id="class-prob-${i}">0%</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                            <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full transition-all duration-300" id="class-bar-${i}" style="width: 0%"></div>
-                        </div>
-                    `;
-                    labelContainer.appendChild(itemDiv);
-                }
-
-                // แสดงส่วนจับเวลา
-                document.getElementById("timer-status").classList.remove("hidden");
-
-                // เริ่มทำนายผลครั้งแรก
-                await predict();
-                lastPredictTime = performance.now();
-
-                // สั่งรันลูปหลักเพื่ออัปเดตกล้องและนับถอยหลังไปพร้อมๆ กัน
-                window.requestAnimationFrame(loop);
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById("label-container").innerHTML = `<p class="text-xs text-red-400 text-center py-2">เกิดข้อผิดพลาดในการโหลดโมเดลหรือเปิดกล้อง</p>`;
+            // เตรียมพื้นที่แสดงผลของ UI Label
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = ""; 
+            
+            for (let i = 0; i < maxPredictions; i++) {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "flex flex-col gap-1.5";
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between text-sm">
+                        <span class="font-semibold text-white" id="class-name-${i}">กำลังโหลด...</span>
+                        <span class="font-bold text-cyan-300" id="class-prob-${i}">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700">
+                        <div class="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 h-full rounded-full transition-all duration-300" id="class-bar-${i}" style="width: 0%"></div>
+                    </div>
+                `;
+                labelContainer.appendChild(itemDiv);
             }
+
+            // แสดงสถานะตัวจับเวลา
+            document.getElementById("timer-status").classList.remove("hidden");
+
+            // ทำการทำนายผลครั้งแรกทันที
+            await predict();
+
+            // เริ่มระบบนับถอยหลังโชว์บนหน้าจอ (Visual Timer)
+            startCountdownVisual();
+
+            // ตั้งค่าลูปการทำนายผลใหม่ ทุกๆ 3 วินาที
+            predictInterval = setInterval(async () => {
+                await predict();
+                secondsLeft = 3; // รีเซ็ตตัวเลขเมื่อทำงานครบรอบ
+            }, 3000);
         }
 
-        // ลูปหลัก (ใช้ความสามารถของ requestAnimationFrame เพื่อความลื่นไหลระดับ 60fps)
-        async function loop(timestamp) {
-            if (!lastPredictTime) lastPredictTime = timestamp;
-            
-            // 1. อัปเดตเฟรมภาพจากเว็บแคมให้ขยับตลอดเวลาไม่กระตุก
+        // ฟังก์ชันช่วยแสดงเลขนับถอยหลัง 3..2..1 บนหน้าจอให้ผู้ใช้เห็นความเคลื่อนไหว
+        function startCountdownVisual() {
+            const countdownEl = document.getElementById("countdown-num");
+            countdownInterval = setInterval(() => {
+                secondsLeft--;
+                if (secondsLeft < 1) {
+                    countdownEl.innerText = "3";
+                } else {
+                    countdownEl.innerText = secondsLeft;
+                }
+            }, 1000);
+        }
+
+        async function loop() {
             webcam.update(); 
-            
-            // 2. คำนวณเวลานับถอยหลัง 3 วินาที
-            const elapsed = timestamp - lastPredictTime;
-            const remaining = Math.max(0, PREDICT_INTERVAL - elapsed);
-            
-            // อัปเดตตัวเลขวิเคราะห์ผลถอยหลังใน UI
-            document.getElementById("countdown-text").innerText = (remaining / 1000).toFixed(1);
-            
-            // อัปเดต Progress Bar นับถอยหลัง (ลดความกว้างลงเรื่อยๆ)
-            const progressPercent = (remaining / PREDICT_INTERVAL) * 100;
-            document.getElementById("countdown-bar").style.width = `${progressPercent}%`;
-
-            // 3. เมื่อครบทุกๆ 3 วินาที (3000ms) ให้ทำนายผล
-            if (elapsed >= PREDICT_INTERVAL) {
-                await predict();
-                lastPredictTime = timestamp; // รีเซ็ตตัวจับเวลารอบถัดไป
-            }
-
             window.requestAnimationFrame(loop);
         }
 
-        // ฟังก์ชันทำนายผลลัพธ์
+        // ฟังก์ชันทำนายผลที่จะถูกเรียกใช้ทุกๆ 3 วินาที
         async function predict() {
             if (!model || !webcam) return;
             
@@ -182,11 +163,9 @@
                 const percentage = (probability * 100).toFixed(0) + "%";
 
                 // อัปเดตข้อมูลลง UI
-                if(document.getElementById(`class-name-${i}`)) {
-                    document.getElementById(`class-name-${i}`).innerText = className;
-                    document.getElementById(`class-prob-${i}`).innerText = percentage;
-                    document.getElementById(`class-bar-${i}`).style.width = percentage;
-                }
+                document.getElementById(`class-name-${i}`).innerText = className;
+                document.getElementById(`class-prob-${i}`).innerText = percentage;
+                document.getElementById(`class-bar-${i}`).style.width = percentage;
             }
         }
     </script>

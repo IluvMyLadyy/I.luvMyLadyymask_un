@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachable Machine - Cat Pastel Theme</title>
+    <!-- นำเข้าฟอนต์น่ารักๆ -->
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Mitr', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffe0b2 0%, #fff9c4 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: rgba(255, 167, 38, 0.75); /* สีส้มพาสเทลโปร่งแสงเล็กน้อย */
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 8px 32px rgba(255, 112, 67, 0.2);
+            text-align: center;
+            border: 4px solid #fff59d; /* ขอบสีเหลืองพาสเทล */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ตกแต่งด้วยหูแมวสุดน่ารักด้านบนกล่อง */
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 167, 38, 0.9);
+            border: 4px solid #fff59d;
+            border-radius: 8px;
+        }
+        .container::before {
+            left: 40px;
+            transform: rotate(-15deg);
+        }
+        .container::after {
+            right: 40px;
+            transform: rotate(15deg);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(230, 81, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-start {
+            background-color: #ffb74d;
+            color: #ffffff;
+            border: 3px solid #ffffff;
+            border-radius: 50px;
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3);
+            margin-bottom: 25px;
+        }
+
+        .btn-start:hover {
+            background-color: #ffa726;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 143, 0, 0.4);
+        }
+
+        .btn-start:active {
+            transform: translateY(1px);
+        }
+
+        #webcam-container {
+            background-color: #fff9c4; /* พื้นหลังรอกล้องสีเหลืองพาสเทล */
+            border: 4px dashed #ffffff;
+            border-radius: 50%; /* ทำเป็นวงกลมสไตล์อุ้งเท้าแมว */
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 25px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #webcam-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* ข้อความแจ้งเตือนสถานะการนับเวลา */
+        .timer-badge {
+            background-color: #ffb74d;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 15px;
+            border: 1px solid #ffffff;
+        }
+
+        #label-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 16px;
+        }
+
+        .prediction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+        }
+
+        .class-name {
+            font-weight: 500;
+        }
+
+        .probability-bar-container {
+            width: 120px;
+            background-color: rgba(255, 255, 255, 0.3);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .probability-bar {
+            height: 100%;
+            background-color: #fff59d;
+            border-radius: 6px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .probability-text {
+            font-size: 14px;
+            margin-left: 8px;
+            min-width: 45px;
+            text-align: right;
+        }
+        
+        .row-right {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🐱 TM Image Model 🐾</h1>
+        <button type="button" class="btn-start" onclick="init()">เริ่มใช้งานสิเหมียว</button>
+        
+        <div id="webcam-container">
+            <!-- สัญลักษณ์รูปอุ้งเท้าแมวระหว่างรอกล้อง -->
+            <span style="color: #ffb74d; font-size: 48px;">🐾</span>
+        </div>
+        
+        <div class="timer-badge" id="timer-status">โหมด: ตรวจจับทุกๆ 3 วินาที</div>
+        
+        <div id="label-container">
+            <!-- ผลลัพธ์จะแสดงตรงนี้ -->
+        </div>
+    </div>
+
+    <!-- ลิงก์ TensorFlow และ Teachable Machine -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <script type="text/javascript">
+        // ลิงก์โมเดลเดิมของคุณ
+        const URL = "https://teachablemachine.withgoogle.com/models/07LFF4wb1/";
+
+        let model, webcam, labelContainer, maxPredictions;
+        let lastPredictTime = 0; // ตัวแปรเก็บเวลาที่ส่งตรวจจับล่าสุด
+
+        async function init() {
+            // ซ่อนปุ่มเริ่มเมื่อกดแล้ว เพื่อความสวยงามและกันผู้ใช้กดซ้ำ
+            document.querySelector('.btn-start').style.display = 'none';
+            
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            const flip = true; 
+            webcam = new tmImage.Webcam(200, 200, flip); 
+            await webcam.setup(); 
+            await webcam.play();
+            
+            // ล้างไอคอนอุ้งเท้าออกแล้วใส่ canvas กล้องเข้าไปแทน
+            document.getElementById("webcam-container").innerHTML = "";
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = ""; 
+            
+            // สร้าง UI ผลลัพธ์แบบ Progress Bar สวยงาม
+            for (let i = 0; i < maxPredictions; i++) {
+                const row = document.createElement("div");
+                row.className = "prediction-row";
+                
+                const nameSpan = document.createElement("span");
+                nameSpan.className = "class-name";
+                
+                const rightDiv = document.createElement("div");
+                rightDiv.className = "row-right";
+                
+                const barContainer = document.createElement("div");
+                barContainer.className = "probability-bar-container";
+                
+                const bar = document.createElement("div");
+                bar.className = "probability-bar";
+                
+                const textSpan = document.createElement("span");
+                textSpan.className = "probability-text";
+                
+                barContainer.appendChild(bar);
+                rightDiv.appendChild(barContainer);
+                rightDiv.appendChild(textSpan);
+                
+                row.appendChild(nameSpan);
+                row.appendChild(rightDiv);
+                
+                labelContainer.appendChild(row);
+            }
+
+            // บันทึกเวลาเริ่มต้นและเริ่มลูปการทำงาน
+            lastPredictTime = Date.now();
+            window.requestAnimationFrame(loop);
+        }
+
+        async function loop() {
+            webcam.update(); // อัปเดตภาพจากกล้องตามปกติเพื่อให้ภาพเคลื่อนไหวลื่นไหล
+            
+            let currentTime = Date.now();
+            // ทำงานเช็คเงื่อนไขเวลา: ถ้าผ่านไปครบ 3,000 มิลลิวินาที (3 วินาที) จึงจะ Predict
+            if (currentTime - lastPredictTime >= 3000) {
+                await predict();
+                lastPredictTime = currentTime; // เซ็ตค่าเวลาล่าสุดใหม่
+                
+                // ลูกเล่นเพิ่มเติม: ให้แถบสถานะกะพริบเบาๆ ทุกครั้งที่มีการอัปเดตข้อมูลใหม่
+                const badge = document.getElementById("timer-status");
+                badge.style.backgroundColor = "#fff59d";
+                badge.style.color = "#ff9800";
+                setTimeout(() => {
+                    badge.style.backgroundColor = "#ffb74d";
+                    badge.style.color = "#ffffff";
+                }, 300);
+            }
+            
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const className = prediction[i].className;
+                const probability = prediction[i].probability;
+                const percentage = (probability * 100).toFixed(0) + "%";
+                
+                // อัปเดตข้อมูลลง UI แบบแยกสัดส่วน
+                const row = labelContainer.childNodes[i];
+                row.querySelector(".class-name").innerHTML = className;
+                row.querySelector(".probability-bar").style.width = percentage;
+                row.querySelector(".probability-text").innerHTML = percentage;
+            }
+        }
+    </script>
+</body>
+</html>
